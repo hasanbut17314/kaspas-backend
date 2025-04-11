@@ -4,8 +4,8 @@ import ApiError from "../utils/ApiError.js";
 import { Order } from "../models/order.model.js";
 import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
-import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
+import { sendEmail, orderConfirmMailTemplate } from "../utils/email.js";
 
 const createOrder = asyncHandler(async (req, res) => {
     const { address, contactNumber } = req.body;
@@ -192,7 +192,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid order ID format");
     }
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("userId", "email firstName lastName").populate("orderItems.prodId", "name")
     if (!order) {
         throw new ApiError(404, "Order not found");
     }
@@ -206,6 +206,18 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         { status },
         { new: true }
     );
+
+    if (!updatedOrder.modifiedPaths().includes("status")) {
+        throw new ApiError(400, "Order status not updated")
+    }
+
+    if (status === "Shipped") {
+        await sendEmail({
+            to: order.userId.email,
+            subject: "Your order has been shipped",
+            html: orderConfirmMailTemplate(order)
+        })
+    }
 
     return res.status(200).json(
         new ApiResponse(

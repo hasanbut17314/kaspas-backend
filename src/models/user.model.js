@@ -25,6 +25,13 @@ const userSchema = new Schema({
         enum: ["admin", "user"],
         required: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String
+    },
     refreshToken: {
         type: String
     }
@@ -71,5 +78,18 @@ userSchema.methods.generateRefreshToken = function () {
         }
     )
 }
+
+userSchema.methods.generateVerificationToken = function () {
+    return jwt.sign(
+        {
+            _id: this._id
+        },
+        process.env.VERIFICATION_TOKEN_SECRET,
+        {
+            expiresIn: process.env.VERIFICATION_TOKEN_EXPIRY
+        }
+    )
+}
+
 
 export const User = mongoose.model("User", userSchema)

@@ -6,7 +6,8 @@ import {
     reCreateAccessToken,
     updateUser,
     addUser,
-    getAllUsers
+    getAllUsers,
+    verifyEmail
 } from '../controllers/user.controller.js';
 import { auth } from '../middlewares/auth.middleware.js';
 
@@ -15,6 +16,7 @@ const router = Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", auth.verifyJWT, logoutUser);
+router.get("/verify-email/:verificationToken", verifyEmail);
 router.post("/recreateAccessToken", auth.verifyJWT, reCreateAccessToken);
 router.put("/update", auth.verifyJWT, updateUser);
 router.post("/addUser", auth.verifyJWT, auth.isAdmin, addUser);
