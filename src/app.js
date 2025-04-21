@@ -20,11 +20,13 @@ import productRouter from "./routes/product.route.js";
 import categoryRouter from "./routes/category.route.js";
 import cartRouter from "./routes/cart.route.js";
 import orderRouter from "./routes/order.route.js";
+import analyticsRouter from "./routes/analytics.route.js";
 
 app.use("/api/user", userRouter)
 app.use("/api/product", productRouter)
 app.use("/api/category", categoryRouter)
 app.use("/api/cart", cartRouter)
 app.use("/api/order", orderRouter)
+app.use("/api/analytics", analyticsRouter)
 
 export default app

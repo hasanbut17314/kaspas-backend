@@ -356,6 +356,18 @@ const getAllUsers = asyncHandler(async (req, res) => {
         )
 })
 
+const deleteUser = asyncHandler(async (req, res) => {
+    const { id } = req.params
+
+    const user = await User.findByIdAndDelete(id)
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200).json(new ApiResponse(200, {}, "User deleted successfully"))
+})
+
 export {
     registerUser,
     verifyEmail,
@@ -364,5 +376,6 @@ export {
     reCreateAccessToken,
     updateUser,
     addUser,
-    getAllUsers
+    getAllUsers,
+    deleteUser
 }

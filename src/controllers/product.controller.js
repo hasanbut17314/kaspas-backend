@@ -127,6 +127,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ createdAt: -1 })
+        .populate("category", "name")
 
     const totalProducts = await Product.countDocuments(query)
 
