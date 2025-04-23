@@ -206,6 +206,29 @@ const getUserCart = asyncHandler(async (req, res) => {
     );
 });
 
+const getCartCount = asyncHandler(async (req, res) => {
+    const cart = await Cart.findOne({ userId: req.user._id });
+
+    if (!cart) {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                { count: 0 },
+                "Cart is empty"
+            )
+        );
+    }
+    const itemCount = cart.items.reduce((total, item) => total + item.quantity, 0);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { count: itemCount },
+            "Cart item count fetched successfully"
+        )
+    )
+});
+
 const emptyCart = asyncHandler(async (req, res) => {
     const cart = await Cart.findOne({ userId: req.user._id });
 
@@ -236,5 +259,6 @@ export {
     decrementItemQuantity,
     removeItemFromCart,
     getUserCart,
+    getCartCount,
     emptyCart
 }
