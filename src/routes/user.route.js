@@ -8,7 +8,9 @@ import {
     addUser,
     getAllUsers,
     verifyEmail,
-    deleteUser
+    deleteUser,
+    getCrntUser,
+    updatePassword
 } from '../controllers/user.controller.js';
 import { auth } from '../middlewares/auth.middleware.js';
 
@@ -23,5 +25,7 @@ router.put("/update", auth.verifyJWT, updateUser);
 router.post("/addUser", auth.verifyJWT, auth.isAdmin, addUser);
 router.get("/getAllUsers", auth.verifyJWT, auth.isAdmin, getAllUsers);
 router.delete("/deleteUser/:id", auth.verifyJWT, auth.isAdmin, deleteUser);
+router.get("/profile", auth.verifyJWT, getCrntUser);
+router.put("/updatePassword", auth.verifyJWT, updatePassword);
 
 export default router;

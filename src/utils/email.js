@@ -31,7 +31,7 @@ export const orderConfirmMailTemplate = (order) => {
         <tr>
             <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.prodId.name}</td>
             <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Rs.${item.price}</td>
         </tr>
     `).join('');
 
@@ -125,7 +125,7 @@ export const orderConfirmMailTemplate = (order) => {
                         </table>
                         
                         <div class="total">
-                            <p>Total Amount: $${order.totalPrice.toFixed(2)}</p>
+                            <p>Total Amount: Rs.${order.totalPrice}</p>
                         </div>
                     </div>
                     

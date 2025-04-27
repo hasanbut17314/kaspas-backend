@@ -239,11 +239,10 @@ const reCreateAccessToken = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
     const {
         firstName,
-        lastName,
-        email
+        lastName
     } = req.body
 
-    if ([firstName, lastName, email].some((value) => value.trim() === "")) {
+    if ([firstName, lastName].some((value) => value.trim() === "")) {
         throw new ApiError(400, "All fields are required")
     }
 
@@ -251,8 +250,7 @@ const updateUser = asyncHandler(async (req, res) => {
         req.user._id,
         {
             firstName,
-            lastName,
-            email
+            lastName
         },
         {
             new: true,
@@ -368,6 +366,45 @@ const deleteUser = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "User deleted successfully"))
 })
 
+const getCrntUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select("-password -refreshToken -__v")
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200).json(new ApiResponse(200, user, "User fetched successfully"))
+})
+
+const updatePassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword, confirmNewPassword } = req.body
+
+    if ([oldPassword, newPassword, confirmNewPassword].some((value) => value.trim() === "")) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        throw new ApiError(400, "Passwords do not match")
+    }
+
+    const user = await User.findById(req.user._id)
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    const isOldPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+    if (!isOldPasswordCorrect) {
+        throw new ApiError(401, "Invalid credentials")
+    }
+
+    user.password = newPassword
+    await user.save({ validateBeforeSave: false })
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password updated successfully"))
+})
+
 export {
     registerUser,
     verifyEmail,
@@ -377,5 +414,7 @@ export {
     updateUser,
     addUser,
     getAllUsers,
-    deleteUser
+    deleteUser,
+    getCrntUser,
+    updatePassword
 }

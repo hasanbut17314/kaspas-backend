@@ -43,7 +43,7 @@ const topProducts = asyncHandler(async (req, res) => {
             $group: {
                 _id: "$orderItems.prodId",
                 quantity: { $sum: "$orderItems.quantity" },
-                totalPrice: { $sum: "$orderItems.totalPrice" }
+                totalPrice: { $sum: "$orderItems.price" }
             }
         },
         {
@@ -59,7 +59,7 @@ const topProducts = asyncHandler(async (req, res) => {
                 _id: 0,
                 quantity: 1,
                 totalPrice: 1,
-                title: { $arrayElemAt: ["$product.title", 0] },
+                name: { $arrayElemAt: ["$product.name", 0] },
                 price: { $arrayElemAt: ["$product.price", 0] },
             }
         },
@@ -99,15 +99,29 @@ const salesByCategory = asyncHandler(async (req, res) => {
             $unwind: "$product"
         },
         {
+            $lookup: {
+                from: "categories",
+                localField: "product.category",
+                foreignField: "_id",
+                as: "category"
+            }
+        },
+        {
+            $unwind: "$category"
+        },
+        {
             $group: {
-                _id: "$product.category",
-                totalSales: { $sum: "$orderItems.totalPrice" }
+                _id: "$category.name",
+                totalSales: { $sum: "$orderItems.price" }
             }
         },
         {
             $sort: {
                 totalSales: -1
             }
+        },
+        {
+            $limit: 5
         }
     ]);
 

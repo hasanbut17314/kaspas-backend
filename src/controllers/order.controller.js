@@ -209,10 +209,6 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    if (!updatedOrder.modifiedPaths().includes("status")) {
-        throw new ApiError(400, "Order status not updated")
-    }
-
     if (status === "Shipped") {
         await sendEmail({
             to: order.userId.email,
