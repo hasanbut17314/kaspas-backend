@@ -129,7 +129,7 @@ export const orderConfirmMailTemplate = (order) => {
                         </div>
                     </div>
                     
-                    <p>Your order has been confirmed and shipped successfully. You can track your order using the following link: <a href="${process.env.CLIENT_URL}/order/${order.order_no}">Track your order</a></p>
+                    <p>Your order has been confirmed and shipped successfully. You can track your order using the following link: <a href="${process.env.CLIENT_URL}/orders">Track your order</a></p>
                     
                     <p>If you have any questions about your order, please don't hesitate to contact our customer support team.</p>
                     

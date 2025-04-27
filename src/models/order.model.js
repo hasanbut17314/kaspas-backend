@@ -25,6 +25,13 @@ const orderSchema = new Schema({
         type: String,
         required: true
     },
+    city: {
+        type: String,
+        required: true
+    },
+    postalCode: {
+        type: String
+    },
     orderItems: [{
         prodId: {
             type: mongoose.Schema.Types.ObjectId,

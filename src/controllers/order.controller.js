@@ -8,10 +8,10 @@ import mongoose from "mongoose";
 import { sendEmail, orderConfirmMailTemplate } from "../utils/email.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-    const { address, contactNumber } = req.body;
+    const { address, contactNumber, city, postalCode } = req.body;
 
-    if (!address || !contactNumber) {
-        throw new ApiError(400, "Address and contact number are required");
+    if (!address || !contactNumber || !city) {
+        throw new ApiError(400, "Address, city and contact number are required");
     }
 
     const cart = await Cart.findOne({ userId: req.user._id });
@@ -56,6 +56,8 @@ const createOrder = asyncHandler(async (req, res) => {
             order_no,
             address,
             contactNumber,
+            city,
+            postalCode: postalCode || null,
             orderItems,
             status: "Pending"
         }], { session });
