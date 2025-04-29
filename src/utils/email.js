@@ -101,7 +101,7 @@ export const orderConfirmMailTemplate = (order) => {
                     <h1>Order Confirmation</h1>
                 </div>
                 <div class="content">
-                    <p>Dear ${order.userId.firstName} ${order.userId.lastName},</p>
+                    <p>Dear ${order.firstName} ${order.lastName},</p>
                     
                     <p>Thank you for your purchase! We're excited to let you know that your order has been confirmed and is being processed.</p>
                     

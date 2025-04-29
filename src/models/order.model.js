@@ -3,7 +3,18 @@ import mongoose, { Schema } from "mongoose";
 const orderSchema = new Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "User"
+    },
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
         required: true
     },
     order_no: {

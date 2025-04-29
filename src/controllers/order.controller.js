@@ -2,21 +2,19 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { Order } from "../models/order.model.js";
-import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
 import mongoose from "mongoose";
 import { sendEmail, orderConfirmMailTemplate } from "../utils/email.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-    const { address, contactNumber, city, postalCode } = req.body;
+    const { firstName, lastName, email, address, contactNumber, city, postalCode, items = [] } = req.body;
 
-    if (!address || !contactNumber || !city) {
-        throw new ApiError(400, "Address, city and contact number are required");
+    if (!firstName || !lastName || !email || !address || !contactNumber || !city) {
+        throw new ApiError(400, "required fields are not provided");
     }
 
-    const cart = await Cart.findOne({ userId: req.user._id });
-    if (!cart || cart.items.length === 0) {
-        throw new ApiError(404, "Cart is empty");
+    if (!Array.isArray(items) || items.length === 0) {
+        throw new ApiError(400, "Items are required to create an order");
     }
 
     const orderItems = [];
@@ -24,7 +22,7 @@ const createOrder = asyncHandler(async (req, res) => {
     session.startTransaction();
 
     try {
-        for (const item of cart.items) {
+        for (const item of items) {
             const product = await Product.findById(item.prodId).session(session);
 
             if (!product) {
@@ -52,7 +50,10 @@ const createOrder = asyncHandler(async (req, res) => {
         const order_no = `ORD-${Date.now()}-${orderCount + 1}`;
 
         const order = await Order.create([{
-            userId: req.user._id,
+            userId: req.user._id || null,
+            firstName,
+            lastName,
+            email,
             order_no,
             address,
             contactNumber,
@@ -194,7 +195,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid order ID format");
     }
 
-    const order = await Order.findById(orderId).populate("userId", "email firstName lastName").populate("orderItems.prodId", "name")
+    const order = await Order.findById(orderId).populate("orderItems.prodId", "name")
     if (!order) {
         throw new ApiError(404, "Order not found");
     }
@@ -211,7 +212,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
     if (status === "Shipped") {
         await sendEmail({
-            to: order.userId.email,
+            to: order.email,
             subject: "Your order has been shipped",
             html: orderConfirmMailTemplate(order)
         })
@@ -236,13 +237,6 @@ const cancelOrder = asyncHandler(async (req, res) => {
     const order = await Order.findById(orderId);
     if (!order) {
         throw new ApiError(404, "Order not found");
-    }
-
-    if (
-        order.userId.toString() !== req.user._id.toString() &&
-        req.user.role !== "admin"
-    ) {
-        throw new ApiError(403, "You don't have permission to cancel this order");
     }
 
     if (order.status !== "Pending") {
