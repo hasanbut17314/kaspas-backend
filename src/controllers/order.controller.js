@@ -50,7 +50,7 @@ const createOrder = asyncHandler(async (req, res) => {
         const order_no = `ORD-${Date.now()}-${orderCount + 1}`;
 
         const order = await Order.create([{
-            userId: req.user._id || null,
+            userId: req.user?._id || null,
             firstName,
             lastName,
             email,
@@ -62,8 +62,6 @@ const createOrder = asyncHandler(async (req, res) => {
             orderItems,
             status: "Pending"
         }], { session });
-
-        await Cart.findByIdAndDelete(cart._id, { session });
 
         await session.commitTransaction();
 
