@@ -1,10 +1,12 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
+import { User } from "../models/user.model.js";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import mongoose from "mongoose";
 import { sendEmail, orderConfirmMailTemplate } from "../utils/email.js";
+import jwt from "jsonwebtoken";
 
 const createOrder = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, address, contactNumber, city, postalCode, items = [] } = req.body;
@@ -49,8 +51,21 @@ const createOrder = asyncHandler(async (req, res) => {
         const orderCount = await Order.countDocuments();
         const order_no = `ORD-${Date.now()}-${orderCount + 1}`;
 
+        let userId = null;
+        if (req.cookies?.accessToken || req.header("Authorization")) {
+            const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+            const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+            if (decodedToken?._id) {
+                const user = await User.findById(decodedToken?._id)
+                    .select("-password -refreshToken");
+                if (user) {
+                    userId = user._id;
+                }
+            }
+        }
+
         const order = await Order.create([{
-            userId: req.user?._id || null,
+            userId,
             firstName,
             lastName,
             email,
