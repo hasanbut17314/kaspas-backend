@@ -152,3 +152,144 @@ export const orderConfirmMailTemplate = (order) => {
         </html>
     `;
 };
+
+export const orderDeliveryMailTemplate = (order) => {
+    const orderItemsHTML = order.orderItems.map(item => `
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.prodId.name}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">Rs.${item.price}</td>
+        </tr>
+    `).join('');
+
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                .header {
+                    background-color: #BA4374;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 5px 5px 0 0;
+                }
+                .content {
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-top: none;
+                    border-radius: 0 0 5px 5px;
+                }
+                .order-details {
+                    margin: 20px 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                th {
+                    background-color: #f5f5f5;
+                    padding: 10px;
+                    text-align: left;
+                    border-bottom: 2px solid #ddd;
+                }
+                .total {
+                    text-align: right;
+                    font-weight: bold;
+                    margin-top: 20px;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
+                    font-size: 14px;
+                }
+                .feedback-section {
+                    background-color: #f9f9f9;
+                    border: 1px solid #eee;
+                    border-radius: 5px;
+                    padding: 20px;
+                    margin: 25px 0;
+                    text-align: center;
+                }
+                .rating-stars {
+                    font-size: 24px;
+                    letter-spacing: 5px;
+                    margin: 15px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Order Delivered!</h1>
+                </div>
+                <div class="content">
+                    <p>Dear ${order.firstName} ${order.lastName},</p>
+                    
+                    <p>Great news! Your order has been successfully delivered to your address. We hope everything arrived in perfect condition and that you're satisfied with your purchase.</p>
+                    
+                    <div class="order-details">
+                        <h2>Order Details</h2>
+                        <p><strong>Order Number:</strong> ${order.order_no}</p>
+                        <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+                        <p><strong>Delivery Address:</strong> ${order.address}</p>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th style="text-align: center;">Quantity</th>
+                                    <th style="text-align: right;">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${orderItemsHTML}
+                            </tbody>
+                        </table>
+                        
+                        <div class="total">
+                            <p>Total Amount: Rs.${order.totalPrice}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feedback-section">
+                        <h2>How was your experience?</h2>
+                        <p>We'd love to hear your thoughts about the products and delivery service!</p>
+                        <div class="rating-stars">★★★★★</div>
+                        <p>Your feedback helps us improve our products and services.</p>
+                    </div>
+                    
+                    <p>If you have any questions or need assistance, our customer support team is always here to help.</p>
+                    
+                    <p>Thank you for choosing us!</p>
+                    
+                    <div class="footer">
+                        <p>Best regards,<br>Kaspas Desserts</p>
+                        <p style="font-size: 12px; margin-top: 15px;">
+                            If you didn't receive your order or there's an issue, please 
+                            <a href="${process.env.CLIENT_URL}/contact">contact us</a> immediately.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+};

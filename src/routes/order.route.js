@@ -5,7 +5,8 @@ import {
     getUserOrders,
     getAllOrders,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
+    getOrderByOrderno
 } from "../controllers/order.controller.js";
 import { auth } from "../middlewares/auth.middleware.js";
 
@@ -17,5 +18,6 @@ router.get("/get/:orderId", getOrderById);
 router.put("/:orderId/cancel", cancelOrder);
 router.get("/getAllorders", auth.verifyJWT, auth.isAdmin, getAllOrders);
 router.put("/:orderId/updateStatus", auth.verifyJWT, auth.isAdmin, updateOrderStatus);
+router.get("/getOrderByOrderno/:order_no", getOrderByOrderno);
 
 export default router;

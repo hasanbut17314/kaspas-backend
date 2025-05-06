@@ -5,7 +5,7 @@ import { User } from "../models/user.model.js";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import mongoose from "mongoose";
-import { sendEmail, orderConfirmMailTemplate } from "../utils/email.js";
+import { sendEmail, orderConfirmMailTemplate, orderDeliveryMailTemplate } from "../utils/email.js";
 import jwt from "jsonwebtoken";
 
 const createOrder = asyncHandler(async (req, res) => {
@@ -125,6 +125,22 @@ const getOrderById = asyncHandler(async (req, res) => {
     );
 });
 
+const getOrderByOrderno = asyncHandler(async (req, res) => {
+    const { order_no } = req.params
+    if (!order_no) {
+        throw new ApiError(400, "Order no is required")
+    }
+
+    const order = await Order.findOne({ order_no }).populate("orderItems.prodId", "name image")
+    if (!order) {
+        throw new ApiError(404, "Order not found")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, order, "Order fetched successfully"));
+})
+
 const getUserOrders = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, status } = req.query;
 
@@ -231,6 +247,14 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         })
     }
 
+    if (status === "Delivered") {
+        await sendEmail({
+            to: order.email,
+            subject: "Your order has been delivered",
+            html: orderDeliveryMailTemplate(order)
+        })
+    }
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -294,5 +318,6 @@ export {
     getUserOrders,
     getAllOrders,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
+    getOrderByOrderno
 }
